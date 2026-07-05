@@ -45,15 +45,18 @@ impl Variant {
 
     /// Return the string value. Returns an empty string if the value is null or numeric.
     pub fn get_string(&self) -> String {
-        let mut value_ptr: *mut c_char = ptr::null_mut();
         unsafe {
+            let mut type_: ffi::AMPL_TYPE = ffi::AMPL_TYPE_AMPL_EMPTY;
+            ffi::AMPL_VariantGetType(self.raw, &mut type_);
+            if type_ != ffi::AMPL_TYPE_AMPL_STRING {
+                return String::new();
+            }
+            let mut value_ptr: *mut c_char = ptr::null_mut();
             ffi::AMPL_VariantGetStringValue(self.raw, &mut value_ptr);
             if value_ptr.is_null() {
                 return String::new();
             }
-            let value_str = String::from(CStr::from_ptr(value_ptr).to_str().unwrap());
-            ffi::AMPL_StringFree(&mut value_ptr);
-            value_str
+            String::from(CStr::from_ptr(value_ptr).to_str().unwrap())
         }
     }
 

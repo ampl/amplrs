@@ -89,7 +89,6 @@ impl Parameter {
             let p = cs.as_ptr();
             let mut tuple: *mut ffi::AMPL_TUPLE = ptr::null_mut();
             unsafe { ffi::AMPL_TupleCreateString(&mut tuple, 1, &p) };
-            std::mem::forget(cs);
             tuple
         }).collect();
 

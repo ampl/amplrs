@@ -125,21 +125,18 @@ impl Variableinstance {
                 let mut type_: ffi::AMPL_TYPE = ffi::AMPL_TYPE_AMPL_NUMERIC;
                 ffi::AMPL_VariantGetType(var, &mut type_);
                 if type_ == ffi::AMPL_TYPE_AMPL_STRING {
+                    // Borrowed from the variant's own storage - do not free.
                     let mut s_ptr: *mut c_char = ptr::null_mut();
                     ffi::AMPL_VariantGetStringValue(var, &mut s_ptr);
                     let s = if s_ptr.is_null() {
                         String::new()
                     } else {
-                        let owned = CStr::from_ptr(s_ptr).to_str().unwrap().to_string();
-                        ffi::AMPL_StringFree(&mut s_ptr);
-                        owned
+                        CStr::from_ptr(s_ptr).to_str().unwrap().to_string()
                     };
-                    ffi::AMPL_VariantFree(&mut var);
                     Value::Text(s)
                 } else {
                     let mut v: f64 = 0.0;
                     ffi::AMPL_VariantGetNumericValue(var, &mut v);
-                    ffi::AMPL_VariantFree(&mut var);
                     Value::Numeric(v)
                 }
             }).collect()

@@ -24,3 +24,8 @@ target
 # Added by cargo
 
 /target
+
+# Downloaded AMPL C API (headers + shared library), fetched by build.rs
+/tmp
+
+output.mod

@@ -85,9 +85,7 @@ impl Environment {
             if value_ptr.is_null() {
                 return String::new();
             }
-            let value_str = String::from(CStr::from_ptr(value_ptr).to_str().unwrap());
-            libc::free(value_ptr as *mut libc::c_void);
-            value_str
+            String::from(CStr::from_ptr(value_ptr).to_str().unwrap())
         }
     }
 
