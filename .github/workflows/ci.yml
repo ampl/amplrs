@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # macos-13 is Intel (x86_64); macos-latest/14+ is Apple Silicon and
+        # the vendored AMPL C API we download has no arm64 macOS build.
+        os: [ubuntu-latest, windows-latest, macos-13]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: Point bindgen at LLVM (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: echo "LIBCLANG_PATH=C:\Program Files\LLVM\bin" >> $env:GITHUB_ENV
+
+      # cargo build --all-targets compiles the library, examples, and tests
+      # (catching any compile-time regression) without running the test
+      # suite, which needs a real AMPL install + license that CI doesn't
+      # have (build.rs only fetches the small AMPL C API client library).
+      - name: Build (lib, examples, tests)
+        run: cargo build --all-targets --verbose
