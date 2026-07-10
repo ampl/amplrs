@@ -101,21 +101,21 @@ fn objective() {
 
   ampl.eval("objective A;");
   assert_eq!(ampl.get_current_objective(), "A");
-  let obj_A = ampl.get_objective("A");
-  assert!(!obj_A.is_minimization());
+  let obj_a = ampl.get_objective("A");
+  assert!(!obj_a.is_minimization());
 
   ampl.eval("objective B;");
   assert_eq!(ampl.get_current_objective(), "B");
-  let obj_B = ampl.get_objective("B");
-  assert!(obj_B.is_minimization());
+  let obj_b = ampl.get_objective("B");
+  assert!(obj_b.is_minimization());
 
   ampl.eval("objective C;");
   assert_eq!(ampl.get_current_objective(), "C");
-  let obj_C = ampl.get_objective("C");
-  assert!(!obj_C.is_minimization());
+  let obj_c = ampl.get_objective("C");
+  assert!(!obj_c.is_minimization());
 
   ampl.eval("objective A;");
   assert_eq!(ampl.get_current_objective(), "A");
-  let obj_A = ampl.get_objective("A");
-  assert!(!obj_A.is_minimization());
+  let obj_a = ampl.get_objective("A");
+  assert!(!obj_a.is_minimization());
 }

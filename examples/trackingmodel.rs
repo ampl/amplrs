@@ -9,10 +9,11 @@ fn main() {
         ampl.set_option("solver", &args[1]);
     }
 
-    let model_dir = format!(
-        "{}/tracking",
-        if args.len() == 3 { args[2].as_str() } else { "../../models" }
-    );
+    let model_dir = if args.len() == 3 {
+        args[2].clone()
+    } else {
+        "models/tracking".to_string()
+    };
 
     ampl.read(&format!("{}/tracking.mod", model_dir));
     ampl.read_data(&format!("{}/tracking.dat", model_dir));

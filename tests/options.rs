@@ -1,11 +1,5 @@
 use amplrs::Ampl;
 
-macro_rules! assert_near {
-    ($x:expr, $y:expr, $d:expr) => {
-        if !($x - $y < $d || $y - $x < $d) { panic!(); }
-    }
-}
-
 fn init() -> Ampl {
     let mut ampl = Ampl::new();
     //ampl.set_bool_option("times", true);

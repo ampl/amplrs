@@ -13,7 +13,7 @@ fn main() {
     let model_dir = if args.len() == 3 {
         args[2].clone()
     } else {
-        "examples/models".to_string()
+        "models".to_string()
     };
 
     ampl.read(&format!("{}/diet/diet.mod", model_dir));

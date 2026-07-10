@@ -7,8 +7,8 @@ fn init() -> Ampl {
 }
 
 fn load_diet(ampl: &mut Ampl) {
-    ampl.read("../examples/models/diet/diet.mod");
-    ampl.read_data("../examples/models/diet/diet.dat");
+    ampl.read("models/diet/diet.mod");
+    ampl.read_data("models/diet/diet.dat");
 }
 
 #[test]

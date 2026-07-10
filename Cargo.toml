@@ -4,11 +4,15 @@ version = "0.1.0"
 edition = "2024"
 description = "Safe Rust API for AMPL optimization modeling system"
 license = "MIT"
-repository = "https://github.com/jurgen-lentz/amplrs"
+repository = "https://github.com/ampl/amplrs"
 readme = "README.md"
 keywords = ["ampl", "optimization", "ffi", "linear-programming"]
 categories = ["api-bindings"]
 links = "ampl"
+
+[lib]
+name = "amplrs"
+path = "src/lib.rs"
 
 [dependencies]
 libc = "0.2"

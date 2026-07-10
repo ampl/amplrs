@@ -1,11 +1,5 @@
 use amplrs::Environment;
 
-//#[test]
-//fn using_xampl() {
-//    let environment = Environment::new("", "");
-//    assert_eq!("x-ampl", environment.get_bin_name());
-//}
-
 #[test]
 fn initializes_correctly() {
     let mut environment = Environment::new("binary_location", "");
