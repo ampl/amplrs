@@ -6,6 +6,12 @@ on:
   pull_request:
   workflow_dispatch:
 
+env:
+  BUNDLES_URL: 'https://portal.ampl.com/dl/amplce/'
+  LINUX64_BUNDLE_NAME: 'ampl.linux64.tgz'
+  MACOS64_BUNDLE_NAME: 'ampl.macos64.tgz'
+  MSWIN64_BUNDLE_NAME: 'ampl.mswin64.zip'
+
 jobs:
   build:
     name: build (${{ matrix.os }})
@@ -31,9 +37,29 @@ jobs:
         shell: pwsh
         run: echo "LIBCLANG_PATH=C:\Program Files\LLVM\bin" >> $env:GITHUB_ENV
 
+      - name: Select AMPL bundle for this OS
+        shell: bash
+        run: |
+          case "${{ runner.os }}" in
+            Linux) echo "AMPL_BUNDLE_NAME=$LINUX64_BUNDLE_NAME" >> "$GITHUB_ENV" ;;
+            macOS) echo "AMPL_BUNDLE_NAME=$MACOS64_BUNDLE_NAME" >> "$GITHUB_ENV" ;;
+            Windows) echo "AMPL_BUNDLE_NAME=$MSWIN64_BUNDLE_NAME" >> "$GITHUB_ENV" ;;
+          esac
+
+      - name: Download and activate AMPL
+        shell: bash
+        env:
+          AMPL_LICENSE_UUID: ${{ secrets.AMPL_LICENSE_UUID }}
+        run: ./dev/download-ampl.sh "${BUNDLES_URL}${AMPL_BUNDLE_NAME}"
+
+      - name: Add AMPL to PATH
+        shell: bash
+        run: echo "$GITHUB_WORKSPACE/ampl" >> "$GITHUB_PATH"
+
       # cargo build --all-targets compiles the library, examples, and tests
-      # (catching any compile-time regression) without running the test
-      # suite, which needs a real AMPL install + license that CI doesn't
-      # have (build.rs only fetches the small AMPL C API client library).
+      # (catching any compile-time regression).
       - name: Build (lib, examples, tests)
         run: cargo build --all-targets --verbose
+
+      - name: Test
+        run: cargo test --verbose
