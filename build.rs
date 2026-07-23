@@ -34,8 +34,39 @@ fn main() {
         // MSVC's linker doesn't understand -Wl,-rpath; on Windows the DLL
         // instead needs to be next to the executable or on PATH.
         println!("cargo:rustc-link-arg=-Wl,-rpath,{}", lib_path.display());
+    } else {
+        copy_windows_dlls(&lib_path, &out_path);
     }
     println!("cargo:rustc-link-lib=ampl");
+}
+
+/// Copies the AMPL DLL(s) next to the built executables so the loader can
+/// find them at runtime (MSVC has no rpath equivalent).
+fn copy_windows_dlls(lib_path: &Path, out_dir: &Path) {
+    let profile_dir = out_dir
+        .parent()
+        .and_then(Path::parent)
+        .and_then(Path::parent)
+        .expect("OUT_DIR has unexpected layout");
+
+    let dlls: Vec<_> = fs::read_dir(lib_path)
+        .expect("failed to read lib dir")
+        .map(|e| e.expect("failed to read directory entry").path())
+        .filter(|p| p.extension().and_then(|e| e.to_str()) == Some("dll"))
+        .collect();
+
+    for dest_dir in [
+        profile_dir.to_path_buf(),
+        profile_dir.join("deps"),
+        profile_dir.join("examples"),
+    ] {
+        fs::create_dir_all(&dest_dir)
+            .unwrap_or_else(|e| panic!("failed to create {}: {e}", dest_dir.display()));
+        for dll in &dlls {
+            let dest = dest_dir.join(dll.file_name().unwrap());
+            fs::copy(dll, &dest).unwrap_or_else(|e| panic!("failed to copy {}: {e}", dll.display()));
+        }
+    }
 }
 
 /// Downloads and caches the AMPL C API (headers + shared library) into
