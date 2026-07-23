@@ -86,9 +86,9 @@ fn solve_arguments_test() {
     ampl.solve("", "");
     assert_near!(118.0, ampl.get_objective("Total_Cost").value(), 1.0);
 
-    ampl.solve("Total_Cost", "highs");
+    ampl.solve("Total_Cost", "scip");
     assert_near!(118.0, ampl.get_objective("Total_Cost").value(), 1.0);
-    assert_eq!("highs", ampl.get_option("solver"));
+    assert_eq!("scip", ampl.get_option("solver"));
 
     ampl.solve("", "cbc");
     assert_near!(118.0, ampl.get_objective("Total_Cost").value(), 1.0);
