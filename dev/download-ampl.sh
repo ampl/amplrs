@@ -20,4 +20,4 @@ rm $PACKAGE
 mv ampl.* ampl
 cd ampl
 pwd
-./amplkey activate -y "$AMPL_LICENSE_UUID"
+./amplkey activate --uuid "$AMPL_LICENSE_UUID"
