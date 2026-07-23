@@ -55,15 +55,7 @@ fn fetch_libampl() -> (PathBuf, PathBuf) {
 }
 
 fn target_arch_dir() -> &'static str {
-    // The vendored AMPL C API has no arm64 macOS build, so always use the
-    // amd64 build on macOS (Apple Silicon runs it under Rosetta).
-    if env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("macos") {
-        return "amd64";
-    }
-    match env::var("CARGO_CFG_TARGET_ARCH").as_deref() {
-        Ok("aarch64") => "aarch64",
-        _ => "amd64",
-    }
+    "amd64"
 }
 
 fn download_and_extract(manifest_dir: &Path, libampl_dir: &Path) {
