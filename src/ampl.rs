@@ -30,6 +30,7 @@ fn set_api_variables(env: &Environment) {
     env.add_environment_variable("AMPL_API", "amplrs");
     env.add_environment_variable("AMPL_API_VERSION", env!("CARGO_PKG_VERSION"));
     env.add_environment_variable("AMPL_API_ENV", "");
+    env.add_environment_variable("AMPL_API_RUNTIME", concat!("rust/", env!("AMPLRS_RUSTC_VERSION")));
 }
 
 impl Ampl {
