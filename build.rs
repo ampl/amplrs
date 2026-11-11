@@ -10,6 +10,17 @@ fn main() {
     println!("cargo:rerun-if-env-changed=AMPL_INCLUDE");
     println!("cargo:rerun-if-env-changed=AMPL_LIB");
 
+    // Version of the Rust compiler, used for AMPL_API_RUNTIME
+    let rustc = env::var("RUSTC").unwrap_or_else(|_| "rustc".to_string());
+    let rustc_version = std::process::Command::new(rustc)
+        .arg("--version")
+        .output()
+        .ok()
+        .and_then(|out| String::from_utf8(out.stdout).ok())
+        .and_then(|out| out.split_whitespace().nth(1).map(str::to_string))
+        .unwrap_or_default();
+    println!("cargo:rustc-env=AMPLRS_RUSTC_VERSION={}", rustc_version);
+
     let (include_path, lib_path) = match (env::var("AMPL_INCLUDE"), env::var("AMPL_LIB")) {
         (Ok(include), Ok(lib)) => (PathBuf::from(include), PathBuf::from(lib)),
         _ => fetch_libampl(),
