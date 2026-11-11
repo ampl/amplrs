@@ -2,6 +2,7 @@ use crate::error::check_ampl_error;
 use crate::ffi;
 use crate::constraint::Constraint;
 use crate::dataframe::DataFrame;
+use crate::environment::Environment;
 use crate::objective::Objective;
 use crate::parameter::Parameter;
 use crate::set::Set;
@@ -19,31 +20,42 @@ use std::mem::MaybeUninit;
 /// models and data, solving, reading results, and setting data via DataFrames.
 pub struct Ampl {
     pub(crate) raw: *mut ffi::AMPL,
+    // Environment created by `new`; AMPL uses it without copying, so it is
+    // dropped after the AMPL instance is freed
+    env: Option<Environment>,
+}
+
+// Read by amplkey (inherited by AMPL and amplkey)
+fn set_api_variables(env: &Environment) {
+    env.add_environment_variable("AMPL_API", "amplrs");
+    env.add_environment_variable("AMPL_API_VERSION", env!("CARGO_PKG_VERSION"));
+    env.add_environment_variable("AMPL_API_ENV", "");
 }
 
 impl Ampl {
     /// Create a new AMPL interpreter instance using the system PATH to locate the binary.
     pub fn new() -> Self {
-        let mut ampl = MaybeUninit::uninit();
-        let err = unsafe { ffi::AMPL_Create(ampl.as_mut_ptr()) };
-        unsafe { check_ampl_error(err) };
-        let ampl = unsafe { ampl.assume_init() };
-        Ampl { raw: ampl }
+        let env = Environment::new("", "");
+        let mut ampl = Self::new_with_env(&env);
+        ampl.env = Some(env);
+        ampl
     }
 
     /// Create a new AMPL interpreter instance using the given [`Environment`] to locate the binary.
-    pub fn new_with_env(env: &crate::environment::Environment) -> Self {
+    pub fn new_with_env(env: &Environment) -> Self {
+        set_api_variables(env);
         let mut ampl = MaybeUninit::uninit();
         let err = unsafe { ffi::AMPL_CreateWithEnv(ampl.as_mut_ptr(), env.raw) };
         unsafe { check_ampl_error(err) };
         let ampl = unsafe { ampl.assume_init() };
-        Ampl { raw: ampl }
+        Ampl { raw: ampl, env: None }
     }
 
     /// Return a shallow copy sharing the same underlying AMPL pointer.
     pub fn clone(&self) -> Self {
         Ampl {
             raw: self.raw,
+            env: None,
         }
     }
 
